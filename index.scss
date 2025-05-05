@@ -1,0 +1,145 @@
+*{
+    box-sizing: border-box;
+}
+html{
+    font-size: 10px;
+}
+
+
+.red-text{
+    color: red;
+}
+
+.small{
+    width: max(20vw, 300px);
+    height: max(20vh, 300px);
+}
+.medium{
+    width: max(40vw, 600px);
+    height: max(40vh, 600px);
+}
+.large{
+    width: max(60vw, 900px);
+    
+}
+.section{
+    border-radius: 2%;
+}
+#shop-section{
+  margin: 20px auto;
+  border: 5px solid black;
+}
+.text-center{
+    text-align: center;
+}
+.large-text{
+    font-size: 3.5em;
+}
+#card-section{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    
+    min-width: 200px;
+    margin: 5px auto;
+}
+.item-card{
+    width: 200px;
+   
+    max-width: 250px;
+    margin: 20px 10px;
+    border: 1px solid black;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    position: relative;
+    .image-section{
+        width: 70%;
+        height: 50%;
+        
+        display: block;
+        margin: 5px auto;
+        border: 1px solid black;
+        position: relative;
+    }
+    img{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .text-section{
+        width: 70%;
+        margin-top: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .title{
+        font-size: 2.2em;
+        margin: 10px;
+    }
+    .price, .supply{
+        margin: 10px;
+    }
+    .price{
+        font-size: 2em;
+    }
+    .supply{
+        font-size: 1.5em;
+    }
+    button{
+        
+        background-color: #afbf99;
+        color: #000000;
+        outline-color: #aaaa00;
+      font-size: 1.5rem;
+      padding: 10px;
+    }
+    .sold-out{
+        position: absolute;
+        opacity: 0.5;
+    }
+}
+#number-to-buy{
+    border-radius: 10px;
+    font-size: 2em;
+    button{
+        cursor: pointer;
+        height: 2em;
+        font-size: 1em;
+        text-align: center;
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+    }
+    #number-of-items{
+        height: 2em;
+        font-size: 1em;
+        width: 50%;
+        margin: 25px auto;
+        display: block;
+        text-align: center;
+    }
+    
+}
+
+footer{
+  width: 100%;
+  padding: 20px;
+  background-color: lightgray;
+}
+footer a, footer address {
+  font-size: 2.5rem;
+  width: 100%;
+  
+}
+footer a{
+  display: inline-block;
+  margin-bottom: 15px;
+}
+footer address{
+  display: block;
+  
+}
