@@ -8,16 +8,40 @@
     <link rel="stylesheet" href="./index.css"/>
   </head>
   <body>
-    <div class="red-border section large" id="shop-section">
-      <h1 class="text-center large-text">What do you want to buy?</h1>
-      <div id="card-section"></div>
-      <dialog id="number-to-buy">
-        <h2 id="prompt">How many do you want to buy?</h2>
-        <input type="number" id="number-of-items" min="0"/>
-        <button id="buy">BUY!</button>
-        <button id="cancel-purchase">CANCEL!</button>
-      </dialog>
-    </div>
+    <header>
+      <h1 class="text-center" id="page-title">Makeshift Shop</h1>
+      <button id="cart-btn"><i class="fa-solid fa-cart-shopping"></i></button>
+      <nav id="nav-board">
+        <ul>
+          <li id="home"><a href="#home">HOME</a></li>
+          <li id="shop"><a href="#shop">SHOP</a></li>
+          <li id="contact"><a href="#contact">CONTACT</a></li>
+          <li id="about"><a href="#about">ABOUT</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <div id="cart-section" class="hide">
+        <p id="cart-title">Your Shopping Cart</p><button id="clear-cart-btn">Clear Cart</button>
+        <div id="products-container"></div>
+        <div id="totals-container">
+          <p>Total Items: <span id="total-number-of-items"></span></p>
+          <p>Subtotal: <span id="subtotal"></span></p>
+          <p>Tax: <span id="tax"></span></p>
+          <p>Total: <span id="total"></span></p>
+        </div>
+      </div>
+      <div id="shop-section">
+        <h1 class="text-center large-text">What do you want to buy?</h1>
+        <div id="card-section"></div>
+        <dialog id="number-to-buy">
+          <h2 id="prompt">How many do you want to buy?</h2>
+          <input type="number" id="number-of-items" min="0"/>
+          <button id="buy">BUY!</button>
+          <button id="cancel-purchase">CANCEL!</button>
+        </dialog>
+      </div>
+    </main>
     <footer>
       <a class="text-center">CONTACT US</a>
       <address class="text-center">
