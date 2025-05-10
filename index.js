@@ -1,9 +1,14 @@
 const cartBtn = document.getElementById('cart-btn');
 const cardSection = document.getElementById('card-section');
+const itemCard = document.querySelector(".itm-card");
+
 const cartSection = document.getElementById('cart-section');
 const productsContainer = document.getElementById('products-container');
 
 const totalNumberOfItems = document.getElementById('total-number-of-items');
+const subtotalPrice = document.getElementById('subtotal');
+const taxPrice = document.getElementById('tax');
+const totalPrice = document.getElementById('total');
 
 const itemStock = [
     {
@@ -56,7 +61,7 @@ const itemStock = [
     },
   {
     id: 10007,
-    name: "No. 2 Pencils (15 each)",
+    name: "No. 2 Pencils",
     price: 3.29,
     imageLink: "https://media.istockphoto.com/id/186851733/photo/pencil.jpg?s=612x612&w=0&k=20&c=58hdaVuswG7PVq8IuEjigZeZvG80qeeF2NF7o6YzqFY=",
     supply: 25,
@@ -64,29 +69,33 @@ const itemStock = [
   }
 ];
 
+const floatPrecision = (number) => {
+  return parseFloat(number.toFixed(2));
+}
+const moneyFormat = (number) => {
+  return number.toFixed(2);
+}
 renderItems = () => {
-  cardSection.innerHTML = itemStock.map(el => {
-    return `
-            <div class="item-card">
-                <div class="image-section">
-                    ${el.supply === 0 ? `<img class="sold-out" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzdf3DvJkEPf2M35MjOyVyv1qoX2BMCzWkKA&s"/>` : ""}
-                    <img class="item-image" src=${el.imageLink} alt=${el.name}/>
-                </div>
-                <div class="text-section">
-                    <h1 class="title">${el.name}</h1>
-                    <p class="price">$${el.price}</p>
-                    <p class="supply">Supply: ${el.supply}</p>
-                </div>
-                <button id="buy-${el.id}" onclick=buyItem(${el.id}); ${el.supply === 0 ? "disabled" : ""}>BUY ITEM</button>
-            </div>
-        `;
-  }).join("");
-  document.querySelector(".item-card button").addEventListener("pressed", () => {
-
+  cardSection.innerHTML = "";
+  itemStock.forEach(({id, name, imageLink, price, supply}) => {
+    cardSection.innerHTML += `
+      <div class="item-card">
+        <div class="image-section">
+          ${supply === 0 ? `<img class="sold-out" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzdf3DvJkEPf2M35MjOyVyv1qoX2BMCzWkKA&s"/>` : ""}
+          <img class="item-image" src=${imageLink} alt=${name}/>
+        </div>
+        <div class="text-section">
+          <h1 class="title">${name}</h1>
+          <p class="price">$${moneyFormat(price)}</p>
+          <p class="supply">Supply: ${supply}</p>
+        </div>
+        <button id="buy-${id}" onclick=buyItem(${id}); ${supply === 0 ? "disabled" : ""}>BUY ITEM</button>
+      </div>
+       `;
   });
 }
 renderItems();
-const buy = document.getElementById('buy');
+const buyBtn = document.getElementById('buy');
 const numberOfItems = document.getElementById('number-of-items');
 const numberToBuy = document.getElementById('number-to-buy');
 const cancelPurchase = document.getElementById('cancel-purchase');
@@ -96,66 +105,141 @@ cartBtn.addEventListener("click", () => {
 })
 
 const buyItem = (id) => {
-    console.log("HIYA");
     numberToBuy.showModal();
     
-    numberOfItems.setAttribute("max", itemStock[itemStock.findIndex(el => el.id === id)].supply);
+    numberOfItems.setAttribute("max", itemStock.find(el => el.id === id).supply);
     cancelPurchase.onclick = () => {
-        numberToBuy.close();
+      numberToBuy.close();
     }
-    console.log("Initial Value before buying:", itemStock[itemStock.findIndex(el => el.id === id)].supply);
-    buy.onclick = () => {
-        if (Number(numberOfItems.value) > itemStock[itemStock.findIndex(el => el.id === id)].supply){
-            alert("Insufficient supply.");
-        } else {
+
+    buyBtn.onclick = () => {
+      if (Number(numberOfItems.value) > itemStock.find(el => el.id === id).supply){
+        alert("Insufficient supply.");
+      } else if (Number(numberOfItems.value) < 0) {
+        alert("You can't purchase negative items.");
+      } else if (Number(numberOfItems.value) === 0) {
+        numberToBuy.close(); 
+      } else {
         numberToBuy.close();
         purchase(id);
-        }
+      }
     }
 }
 
 const purchase = id => {
-    console.log(id);
-    console.log("Number to buy:", Number(numberOfItems.value));
-    console.log("Initial Value:", itemStock[itemStock.findIndex(el => el.id === id)].supply);
-    itemStock[itemStock.findIndex(el => el.id === id)].supply -= Number(numberOfItems.value);
-    
-    console.log(itemStock[itemStock.findIndex(el => el.id === id)].supply);
-    console.log("CLOSE!");
-    if (itemStock[itemStock.findIndex(el => el.id === id)].supply === 0){
-        document.getElementById(`buy-${id}`).style.cursor = "not-allowed";
-        document.getElementById(`buy-${id}`).style.opacity = 0.5;
-    }
-    renderItems();
+  itemStock.find(el => el.id === id).supply -= Number(numberOfItems.value);
+   console.log(id);
+  
+  renderItems();
+  additionalStyling(id);
+  shopCart.addProduct(id, Number(numberOfItems.value), itemStock);
 }
+
+const additionalStyling = (id) => {
+  if (itemStock.find(el => el.id === id).supply === 0){
+    
+    const buyItemBtnSelected = document.getElementById(`buy-${id}`);
+    buyItemBtnSelected.style.cursor = "not-allowed";
+    buyItemBtnSelected.style.opacity = 0.2;
+  }
+}
+
+const clearCartBtn = document.getElementById('clear-cart-btn');
+
+clearCartBtn.addEventListener("click", () => {
+  if (shopCart.products.length >= 1){
+    alert("Do you want to clear the cart of all items?");
+  }
+})
 
 class Cart{
   constructor(){
-    this.productCount = 0;
+    this.totalItems = 0;
     this.subtotal = 0;
+    this.taxRate = 8.50;
+    this.total = 0;
     this.products = [];
   }
-  getProductCount(){
-    return this.productCount;
+  addProduct(id, numberOfSpecifiedItem, products){
+    
+    const product = products.find(item => item.id === id);
+    const {name, price, imageLink} = product;
+    product.itemCount = (product.itemCount || 0) + numberOfSpecifiedItem;
+   if (!this.products.find(item => item.id === id)) { 
+     this.products.push(product);
+                                }
+    
+    const totalCountPerItem = {};
+    this.products.forEach(item => {
+      totalCountPerItem[item.id] = (totalCountPerItem[item.id] || 0) + numberOfSpecifiedItem;
+    });
+    
+    const currentItemCount = totalCountPerItem[product.id];
+    const currentItemCountSpan = document.getElementById(`item-count-span-id${product.id}`);
+    
+    this.renderCart();
+
+    /* Calculating Totals*/
+    this.renderTotal();
+  } 
+
+  getTaxPrice(){
+    return floatPrecision(this.subtotal * (this.taxRate * 0.01));
   }
   renderTotal(){
-    totalNumberOfItems.textContent = shopCart.getProductCount();
+    this.totalItems = this.products.reduce((acc, el) => acc + el.itemCount, 0);
+    this.subtotal = this.products.reduce((acc, el) => floatPrecision(acc + (el.price * el.itemCount)), 0);
+    this.total = floatPrecision(this.subtotal + this.getTaxPrice());
+    
+    totalNumberOfItems.textContent = `${this.totalItems}`;
+    subtotalPrice.textContent = `$${moneyFormat(this.subtotal)}`;
+    taxPrice.textContent = `$${moneyFormat(this.getTaxPrice())}`;
+    totalPrice.textContent = `$${moneyFormat(this.total)}`;
   }
   renderCart(){
+    if (shopCart.products.length === 0){
+  productsContainer.innerHTML = `
+    <p id="empty-notification" class="text-center">You currently have no items.</p>
+  `;
+    } else {
+      productsContainer.innerHTML = "";
+    }
+    
+   
+    this.products.forEach(({name, id, price, imageLink, itemCount}) => {
+      productsContainer.innerHTML += `
+        <div class="item" id="item#${id}">
+          <img src="${imageLink}" alt="${name}"/>
+          <div class="flex-adjuster">
+            <div class="item-info">
+              <p class="item-name">${name}</p>
+              <p>Quantity: <span id="item-count-span-id${id}">${itemCount}</span></p>
+              <p>$${moneyFormat(price)}</p>
+            </div>
+            <p class="item-purchase-total-price" id="total-item#${id}-price">$${moneyFormat(floatPrecision(itemCount * price))}</p>
+          </div>
+        </div>
+      `;
+    });
+    
+  }
+  /* Clear the Cart of all products.*/
+  clearCart(){
+    this.products = [];
+    this.totalItems = 0;
+    this.subtotal = 0;
+    this.total = 0;
+    
+    this.renderCart();
+    this.renderTotal();
     
   }
 }
 
 const shopCart = new Cart();
 
-if (shopCart.getProductCount() === 0){
-  productsContainer.innerHTML = `
-    <p id="empty-notification" class="text-center">You currently have no items.</p>
-  `;
-}
-const renderTotals = () => {
-  totalNumberOfItems.textContent = shopCart.getProductCount();
-}
-renderTotals();
+
+shopCart.renderTotal();
+shopCart.renderCart();
 
 
