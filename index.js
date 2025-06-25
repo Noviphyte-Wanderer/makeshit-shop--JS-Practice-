@@ -1,15 +1,17 @@
+// DOM Initializations.
 const cartBtn = document.getElementById('cart-btn');
-const cardSection = document.getElementById('card-section');
-const itemCard = document.querySelector(".itm-card");
-
 const cartSection = document.getElementById('cart-section');
 const productsContainer = document.getElementById('products-container');
+
+const cardSection = document.getElementById('card-section');
+const itemCard = document.querySelector(".itm-card");
 
 const totalNumberOfItems = document.getElementById('total-number-of-items');
 const subtotalPrice = document.getElementById('subtotal');
 const taxPrice = document.getElementById('tax');
 const totalPrice = document.getElementById('total');
 
+// Current Item Catalogue Array
 const itemStock = [
     {
       id: 10001,
@@ -68,13 +70,16 @@ const itemStock = [
     category: "School/Office"
   }
 ];
-
+// Helper Functions
 const floatPrecision = (number) => {
   return parseFloat(number.toFixed(2));
 }
 const moneyFormat = (number) => {
   return number.toFixed(2);
 }
+
+/* Main Part of the Script */
+// Renders the Shop's Item Catalogue to the DOM.
 renderItems = () => {
   cardSection.innerHTML = "";
   itemStock.forEach(({id, name, imageLink, price, supply}) => {
@@ -95,43 +100,61 @@ renderItems = () => {
   });
 }
 renderItems();
+
+// The shop's DOM references. (Item cards and purchase modal.)
 const buyBtn = document.getElementById('buy');
 const numberOfItems = document.getElementById('number-of-items');
+
+// Purchase Modal DOM references.
 const numberToBuy = document.getElementById('number-to-buy');
 const cancelPurchase = document.getElementById('cancel-purchase');
 
+// Cart Button's Interactivity.
 cartBtn.addEventListener("click", () => {
   cartSection.classList.toggle("hide");
 })
 
+// Buy Item Functionality of Item Card's Buy Button.
 const buyItem = (id) => {
-    numberToBuy.showModal();
+    numberToBuy.showModal(); // Shows Purchase Prompt Modal.
     
-    numberOfItems.setAttribute("max", itemStock.find(el => el.id === id).supply);
+    numberOfItems.setAttribute("max", itemStock.find(el => el.id === id).supply); // Ensures number input does not exceed current item's current supply.
+  
     cancelPurchase.onclick = () => {
       numberToBuy.close();
     }
 
+    // Modal's Buy button interactivity.
     buyBtn.onclick = () => {
-      if (Number(numberOfItems.value) > itemStock.find(el => el.id === id).supply){
-        alert("Insufficient supply.");
-      } else if (Number(numberOfItems.value) < 0) {
-        alert("You can't purchase negative items.");
-      } else if (Number(numberOfItems.value) === 0) {
-        numberToBuy.close(); 
-      } else {
-        numberToBuy.close();
-        purchase(id);
+      switch (true){
+        case (Number(numberOfItems.value) > itemStock.find(el => el.id === id).supply):
+          alert("Insufficient supply.");
+          break;
+        case (Number(numberOfItems.value) === 0):
+          numberToBuy.close();
+          break;
+        case (Number(numberOfItems.value) > 0):
+          numberToBuy.close();
+          purchase(id);
+          break;
+        default:
+          // Nothing happens. It catches the case where the number is negative.
       }
     }
 }
 
+// The actual purchase functionality.
 const purchase = id => {
   itemStock.find(el => el.id === id).supply -= Number(numberOfItems.value);
-   console.log(id);
   
+  
+  // Re-render items with updated values.
   renderItems();
-  additionalStyling(id);
+  
+  // Renders additional styling to selected item if item is out of supply.
+  itemStock.forEach(el => additionalStyling(el.id));
+  
+  // Adds product to shopping cart.
   shopCart.addProduct(id, Number(numberOfItems.value), itemStock);
 }
 
@@ -145,13 +168,25 @@ const additionalStyling = (id) => {
 }
 
 const clearCartBtn = document.getElementById('clear-cart-btn');
+const clearCart = document.getElementById('clear-cart');
+const clearBtn = document.getElementById('clear-btn');
+const cancelBtn = document.getElementById('cancel-btn');
 
-clearCartBtn.addEventListener("click", () => {
+clearCartBtn.onclick = () => {
   if (shopCart.products.length >= 1){
-    alert("Do you want to clear the cart of all items?");
+    clearCart.showModal();
+    
+    clearBtn.addEventListener("click", () => {
+      clearCart.close();
+      shopCart.clearCart();
+    })
+    cancelBtn.addEventListener("click", () => {
+      clearCart.close();
+    })
   }
-})
+};
 
+// Cart Object Blueprint.
 class Cart{
   constructor(){
     this.totalItems = 0;
@@ -160,19 +195,21 @@ class Cart{
     this.total = 0;
     this.products = [];
   }
+  
   addProduct(id, numberOfSpecifiedItem, products){
     
     const product = products.find(item => item.id === id);
     const {name, price, imageLink} = product;
     product.itemCount = (product.itemCount || 0) + numberOfSpecifiedItem;
-   if (!this.products.find(item => item.id === id)) { 
-     this.products.push(product);
-                                }
+    if (!this.products.find(item => item.id === id)) { 
+      this.products.push(product); //Only add product to products array if it is not found in the array at all.
+    }
+    console.log("Current Selected Item Name: " + name);
     
     const totalCountPerItem = {};
     this.products.forEach(item => {
       totalCountPerItem[item.id] = (totalCountPerItem[item.id] || 0) + numberOfSpecifiedItem;
-    });
+  });
     
     const currentItemCount = totalCountPerItem[product.id];
     const currentItemCountSpan = document.getElementById(`item-count-span-id${product.id}`);
@@ -186,6 +223,7 @@ class Cart{
   getTaxPrice(){
     return floatPrecision(this.subtotal * (this.taxRate * 0.01));
   }
+  
   renderTotal(){
     this.totalItems = this.products.reduce((acc, el) => acc + el.itemCount, 0);
     this.subtotal = this.products.reduce((acc, el) => floatPrecision(acc + (el.price * el.itemCount)), 0);
@@ -196,6 +234,7 @@ class Cart{
     taxPrice.textContent = `$${moneyFormat(this.getTaxPrice())}`;
     totalPrice.textContent = `$${moneyFormat(this.total)}`;
   }
+  //Renders products in Cart.
   renderCart(){
     if (shopCart.products.length === 0){
   productsContainer.innerHTML = `
@@ -205,26 +244,46 @@ class Cart{
       productsContainer.innerHTML = "";
     }
     
-   
     this.products.forEach(({name, id, price, imageLink, itemCount}) => {
       productsContainer.innerHTML += `
-        <div class="item" id="item#${id}">
+        <div class="item" id="item-id-${id}">
           <img src="${imageLink}" alt="${name}"/>
-          <div class="flex-adjuster">
+          <div class="flex-row item-info-holder">
             <div class="item-info">
               <p class="item-name">${name}</p>
-              <p>Quantity: <span id="item-count-span-id${id}">${itemCount}</span></p>
-              <p>$${moneyFormat(price)}</p>
+              <p class="flex-row item-quantity">Quantity: 
+                
+                <button class="increment-number" id="increment-quantity-item-${id}">+</button>
+                <span id="item-count-span-id${id}" style="font-size: 2.5rem; vertical-align: center;"><strong>${itemCount}</strong></span><span></span>
+                <button class="decrement-number" id="decrement-quantity-item-${id}">-</button>
+                
+              </p>
+              <p>$${moneyFormat(price)} each</p>
             </div>
             <p class="item-purchase-total-price" id="total-item#${id}-price">$${moneyFormat(floatPrecision(itemCount * price))}</p>
           </div>
         </div>
       `;
     });
-    
+    this.products.forEach(({id}) => {
+      document.querySelector(`#increment-quantity-item-${id}`).onclick = () => this.incrementQuantity(id);
+      document.querySelector(`#decrement-quantity-item-${id}`).onclick = () => this.decrementQuantity(id);
+    })
   }
+  
   /* Clear the Cart of all products.*/
   clearCart(){
+    itemStock.forEach(el => {
+      if (this.products.find(element => element.id === el.id)){
+        el.supply += this.products.find(element => element.id === el.id).itemCount; 
+      }
+    });
+    
+    this.products.forEach(el => {
+      el.itemCount = 0;  
+    });
+    renderItems();
+    
     this.products = [];
     this.totalItems = 0;
     this.subtotal = 0;
@@ -234,10 +293,34 @@ class Cart{
     this.renderTotal();
     
   }
+  
+  incrementQuantity(id){
+    console.log("Increment.");
+    const product = this.products.find(el => el.id === id);
+    if (itemStock.find(el => el.id === id).supply > 0){
+      product.itemCount += 1;
+      itemStock.find(el => el.id === id).supply -= 1;
+      this.renderCart();
+      this.renderTotal();
+      renderItems();
+    }
+  }
+  decrementQuantity(id){
+    console.log("Decrement.");
+    const product = this.products.find(el => el.id === id);
+    if (product.itemCount > 1){
+      product.itemCount -= 1;
+      itemStock.find(el => el.id === id).supply += 1;
+      this.renderCart();
+      this.renderTotal();
+      renderItems();
+    } else if (product.itemCount === 1){
+      alert("Are you sure you want to clear this item from the cart?");
+    }
+  }
 }
 
 const shopCart = new Cart();
-
 
 shopCart.renderTotal();
 shopCart.renderCart();
