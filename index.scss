@@ -1,9 +1,12 @@
 *{
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 :root{
   --navboard-min-width: 700px;
-  --dynamic-navboard-width: 75vw;
+  --dynamic-navboard-width: 70vw;
+  --page-margin-top: 10px;
 }
 
 @mixin center-section($vert-margin, $width){
@@ -24,6 +27,7 @@ body{
 header{
   #page-title{
     width: max(100vw, var(--navboard-min-width));
+    margin-top: var(--page-margin-top);
   }
   #nav-board{
     @include center-section(10px, 
@@ -60,7 +64,7 @@ main{
     color: black;
   }
   position: absolute;
-  top: 50px;
+  top: var(--page-margin-top);
   right: min(calc((100vw - var(--dynamic-navboard-width)) / 2), calc((100vw - var(--navboard-min-width)) / 2));
 }
 #cart-section{
@@ -73,17 +77,60 @@ main{
   #cart-title{
     font-size: 2.4rem;
     margin: 0;
-    width: 88%;
+    width: max(88%);
     display: inline-block;
   }
   #clear-cart-btn{
-    width: 12%;
+    width: max(12%, 50px);
     display: inline-block;
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
   #products-container{
     #empty-notification{
       font-size: 1.8rem;
+    }
+    .item{
+      border-bottom: 1px solid gray;
+      border: 1px solid black;
+      @include center-section(5px, 90%);
+      display: flex;
+      img{
+        width: 30%;
+        object-fit: contain;
+      }
+      .item-info-holder{
+        border: 1px solid black;
+        width: 70%;
+      }
+      .item-info{
+        text-align: right;
+        border: 1px dashed black;
+        .item-name{
+          font-weight: bold;
+          font-size: 2.75rem;
+        }
+        width: 50%;
+        font-size: 2.0rem;
+      }
+      .item-purchase-total-price{
+        text-align: right;
+        display: inline-block;
+        width: 50%;
+      }
+      .flex-row{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .item-quantity{
+        margin-block: 1em;
+        
+        button{
+          padding: 2.5px 10px;
+          font-size: 2rem;
+          width: 4rem;
+        }
+      }
     }
   }
   #totals-container{
@@ -114,20 +161,23 @@ main{
   width: 100%;
   min-width: 200px;
   background-color: white;
+  border-radius: 0 0 1.35% 1.35%;
+  z-index: 0;
 }
 .item-card{
     width: 200px;
     max-width: 250px;
     margin: 20px 10px;
     border: 3px solid black;
+  border-radius: 0 0 12.5px 12.5px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: space-between;
     position: relative;
     .image-section{
-        width: 70%;
-        height: 50%;
+        width: 75%;
+        height: 40%;
         
         display: block;
         margin: 5px auto;
@@ -160,13 +210,15 @@ main{
     }
     button{
         
-        background-color: #afbf99;
+        background: linear-gradient(#cfbf99, #a78954);
         color: #000000;
         outline-color: #aaaa00;
-      font-size: 1.5rem;
+      font-size: 1.75rem;
+      font-family: "Roboto Flex";
       padding: 10px;
       cursor: pointer;
       border: 1px solid black;
+      border-radius: 0 0 10px 10px;
     }
   
     .sold-out{
@@ -174,19 +226,26 @@ main{
         opacity: 0.5;
     }
 }
-#number-to-buy{
+ 
+dialog{
     border-radius: 10px;
-    font-size: 2em;
-    button{
-        cursor: pointer;
-        height: 2em;
-        font-size: 1em;
-        text-align: center;
-        display: block;
-        width: 80%;
-        margin: 10px auto;
-    }
-    #number-of-items{
+    font-size: 2rem;
+    @include center-section(auto, 400px);
+  h2{
+    width: 90%;
+    margin: auto;
+  }
+  button{
+     cursor: pointer;
+     height: 2em;
+     font-size: 1em;
+     text-align: center;
+     display: block;
+     width: 80%;
+     margin: 10px auto;
+  }
+   
+    #number-of-items, #clear-cart{
         height: 2em;
         font-size: 1em;
         width: max(50%, 300px);
@@ -213,5 +272,18 @@ footer a{
 }
 footer address{
   display: block;
+  
+}
+
+@media (max-width: 600px){
+  #cart-section{
+    width: 400px;
+    #cart-title{
+      width: calc(100% - 50px);
+    }
+    #clear-cart-btn{
+      font-size: 1.5rem;
+    }
+  }
   
 }
