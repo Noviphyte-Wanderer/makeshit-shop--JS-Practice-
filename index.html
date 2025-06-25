@@ -9,11 +9,11 @@
   </head>
   <body>
     <header>
-      <h1 class="text-center" id="page-title">Makeshift Shop</h1>
+      <h1 class="text-center" id="page-title" ariaLabel="webpage-title">Makeshift Shop</h1>
       <button id="cart-btn"><i class="fa-solid fa-cart-shopping"></i></button>
       <nav id="nav-board">
         <ul>
-          <li id="home"><a href="#home">HOME</a></li>
+          <li id="homepage"><a href="#homepage">HOME</a></li>
           <li id="shop"><a href="#shop">SHOP</a></li>
           <li id="contact"><a href="#contact">CONTACT</a></li>
           <li id="about"><a href="#about">ABOUT</a></li>
@@ -30,12 +30,19 @@
           <p>Tax: <span id="tax"></span></p>
           <p>Total: <span id="total"></span></p>
         </div>
+        <!--Clear Cart Modal Section-->
+        <dialog id="clear-cart">
+          <h2 id="clear-prompt" class="text-center">Are you sure you want to clear all items in the cart?</h2>
+          <button id="clear-btn">Yes</button>
+          <button id="cancel-btn">No</button>
+        </dialog>
       </div>
       <div id="shop-section">
         <h1 class="text-center large-text">What do you want to buy?</h1>
         <div id="card-section"></div>
+        <!--Purchase Prompt Modal Section-->
         <dialog id="number-to-buy">
-          <h2 id="prompt">How many do you want to buy?</h2>
+          <h2 id="buy-prompt" class="text-center">How many do you want to buy?</h2>
           <input type="number" id="number-of-items" min="0"/>
           <button id="buy">BUY!</button>
           <button id="cancel-purchase">CANCEL!</button>
